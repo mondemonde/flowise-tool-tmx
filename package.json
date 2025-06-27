@@ -1,0 +1,26 @@
+{
+  "name": "flowise-chatgpt-tmx-node",
+  "version": "1.0.0",
+  "description": "Custom Flowise node for interacting with ChatGPT TMX project",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node test/test-node.js",
+    "install-playwright": "npx playwright install chromium",
+    "setup": "node install.js"
+  },
+  "keywords": [
+    "flowise",
+    "chatgpt",
+    "tmx",
+    "playwright",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "^1.40.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
