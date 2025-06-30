@@ -69,44 +69,125 @@ class ChatGptTmxNode {
         let page = null;
 
         try {
-            // Launch browser
-            browser = await chromium.launch({ 
-                headless: headless,
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-accelerated-2d-canvas',
-                    '--no-first-run',
-                    '--no-zygote',
-                    '--disable-gpu'
-                ]
-            });
+            // Connect to existing Chromium via CDP if CHROME_CDP_URL is set
+            if (process.env.CHROME_CDP_URL) {
+                console.log('Connecting to existing Chromium via CDP:', process.env.CHROME_CDP_URL);
+                browser = await chromium.connectOverCDP(process.env.CHROME_CDP_URL);
+                // Use the first context (default context)
+                context = browser.contexts()[0];
+            } else {
+                // Launch browser
+                browser = await chromium.launch({ 
+                    headless: headless,
+                    args: [
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                        '--disable-accelerated-2d-canvas',
+                        '--no-first-run',
+                        '--no-zygote',
+                        '--disable-gpu'
+                    ]
+                });
 
-            // Create context with realistic user agent
-            context = await browser.newContext({
-                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                viewport: { width: 1280, height: 720 }
-            });
+                // Create context with realistic user agent and custom user data dir for Google login
+                context = await browser.newContext({
+                    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    viewport: { width: 1280, height: 720 },
+                    storageState: undefined,
+                    // Use persistent context to reuse Google login session
+                });
+            }
 
             page = await context.newPage();
 
             // Set timeout
             page.setDefaultTimeout(timeout);
 
-            // Navigate to ChatGPT TMX project
-            console.log('Navigating to ChatGPT TMX project...');
-            await page.goto('https://chatgpt.com/g/g-p-6833ee4454248191b3d0277129630c33-tmx/project', {
-                waitUntil: 'networkidle'
+            // Step 1: Navigate to ChatGPT main page for manual login
+            const chatgptMainUrl = 'https://chatgpt.com/';
+            const tmxUrl = 'https://chatgpt.com/g/g-p-6833ee4454248191b3d0277129630c33-tmx/project';
+            console.log('Navigating to ChatGPT main page for manual login...');
+            await page.goto(chatgptMainUrl, {
+                waitUntil: 'networkidle',
+                timeout: 60000
             });
 
+            // Wait for user to log in manually (wait for chat input or "New chat" button)
+            let loggedIn = false;
+            for (let i = 0; i < 30; i++) { // up to 60 seconds
+                const chatInputVisible = await page.locator('#prompt-textarea').first().isVisible({ timeout: 1000 }).catch(() => false);
+                const newChatButtonVisible = await page.locator('button:has-text("New chat")').first().isVisible({ timeout: 1000 }).catch(() => false);
+                if (chatInputVisible || newChatButtonVisible) {
+                    loggedIn = true;
+                    break;
+                }
+                await page.waitForTimeout(2000);
+            }
+            if (!loggedIn) {
+                throw new Error('Manual login to ChatGPT was not detected. Please log in and try again.');
+            }
+            console.log('Manual login detected. Navigating to TMX project...');
+
+            // Step 2: Navigate to ChatGPT TMX project
+            await page.goto(tmxUrl, {
+                waitUntil: 'domcontentloaded',
+                timeout: 60000
+            });
+            console.log('Navigated to TMX project, current URL:', page.url());
+
             // Wait for page to load and check if login is required
-            await page.waitForLoadState('domcontentloaded');
-            
-            // Check if we need to login
+            await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
+
+            // Wait for the correct URL to be loaded
+            for (let i = 0; i < 10; i++) {
+                const currentUrl = page.url();
+                console.log('Current URL:', currentUrl);
+                if (currentUrl.startsWith(tmxUrl)) break;
+                await page.waitForTimeout(2000);
+            }
+
+            // Wait for user to solve any Cloudflare or security challenge
+            let chatInputReady = false;
+            console.log('If you see a security or Cloudflare challenge in the browser, please solve it manually. Waiting for chat input to appear...');
+            for (let i = 0; i < 60; i++) { // up to 2 minutes
+                const chatInputVisible = await page.locator('#prompt-textarea').first().isVisible({ timeout: 1000 }).catch(() => false);
+                if (chatInputVisible) {
+                    chatInputReady = true;
+                    break;
+                }
+                await page.waitForTimeout(2000);
+            }
+            if (!chatInputReady) {
+                throw new Error('Chat input did not appear. Please ensure you have solved any security challenge and the page is fully loaded.');
+            }
             const loginButton = await page.locator('button:has-text("Log in")').first();
             if (await loginButton.isVisible({ timeout: 5000 }).catch(() => false)) {
-                throw new Error('Authentication required. Please log in to ChatGPT first in your browser.');
+                // Attempt automated login
+                console.log('Login required. Attempting automated login...');
+                await loginButton.click();
+
+                // Wait for email input
+                const emailInput = await page.locator('input[type="email"]').first();
+                await emailInput.waitFor({ timeout: 10000 });
+                await emailInput.fill(process.env.CHATGPT_EMAIL || '');
+                await page.locator('button[type="submit"],button:has-text("Continue")').first().click();
+
+                // Wait for password input
+                const passwordInput = await page.locator('input[type="password"]').first();
+                await passwordInput.waitFor({ timeout: 10000 });
+                await passwordInput.fill(process.env.CHATGPT_PASSWORD || '');
+                await page.locator('button[type="submit"],button:has-text("Continue")').first().click();
+
+                // Wait for navigation to chat interface
+                await page.waitForNavigation({ waitUntil: 'networkidle', timeout: 20000 }).catch(() => {});
+                // Optionally, wait for chat input to appear
+                await page.waitForSelector('#prompt-textarea', { timeout: 20000 }).catch(() => {});
+
+                // Check if login was successful
+                if (await page.locator('button:has-text("Log in")').first().isVisible({ timeout: 5000 }).catch(() => false)) {
+                    throw new Error('Automated login failed. Please check your credentials or login manually.');
+                }
             }
 
             // Wait for chat interface to be ready
@@ -144,7 +225,10 @@ class ChatGptTmxNode {
             await chatInput.click();
             await chatInput.fill('');
             await chatInput.fill(message);
-            
+
+            // Add delay before sending the message
+            await page.waitForTimeout(5000); // 5 seconds
+
             // Send the message (try Enter key first, then look for send button)
             await chatInput.press('Enter');
 
