@@ -6,7 +6,9 @@
   "scripts": {
     "test": "node test/test-node.js",
     "install-playwright": "npx playwright install chromium",
-    "setup": "node install.js"
+    "setup": "node install.js",
+    "launch-chrome-cdp": "launch-chrome-cdp.cmd",
+    "test-cdp": "set CHROME_CDP_URL=http://localhost:9222 && node test/test-node.js"
   },
   "keywords": [
     "flowise",
