@@ -1,0 +1,7 @@
+{
+  "CHROME_CDP_URL": "",
+  "CHATGPT_EMAIL": "your-email@example.com",
+  "CHATGPT_PASSWORD": "your-password",
+  "PORT": "3000",
+  "HEADLESS": "false"
+}

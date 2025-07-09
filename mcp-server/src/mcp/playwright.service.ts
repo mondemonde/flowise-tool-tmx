@@ -1,10 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { chromium, Browser, Page } from 'playwright';
+import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import { SendChatgptTmxMessageDto } from './dto/send-chatgpt-tmx-message.dto';
 
 @Injectable()
-export class PlaywrightService {
+export class PlaywrightService implements OnModuleInit {
+  private static browser: BrowserContext | null = null;
   private readonly logger = new Logger(PlaywrightService.name);
   private readonly CHATGPT_EMAIL: string;
   private readonly CHATGPT_PASSWORD: string;
@@ -17,17 +18,30 @@ export class PlaywrightService {
     this.CHROME_CDP_URL = this.configService.get<string>('CHROME_CDP_URL', '');
   }
 
-  async sendMessageToChatGPT(dto: SendChatgptTmxMessageDto): Promise<string> {
-    const { message, timeout = 30, headless = true } = dto;
-    let browser: Browser | null = null;
-    let page: Page | null = null;
+  async onModuleInit() {
+    await PlaywrightService.getBrowser(this.CHROME_CDP_URL);
+    this.logger.log('Static Chromium instance started and ready.');
+  }
 
-    try {
-      if (this.CHROME_CDP_URL) {
-        browser = await chromium.connectOverCDP(this.CHROME_CDP_URL);
-      } else {
-        browser = await chromium.launch({
-          headless,
+  private static async getBrowser(CHROME_CDP_URL: string): Promise<BrowserContext> {
+    if (PlaywrightService.browser) {
+      return PlaywrightService.browser;
+    }
+    if (CHROME_CDP_URL) {
+      // Persistent context is not supported for CDP connections.
+      // Fallback: create a new incognito context from the connected browser.
+      const browser = await chromium.connectOverCDP(CHROME_CDP_URL);
+      const context = await browser.newContext();
+      PlaywrightService.browser = context;
+      return context;
+    } else {
+      console.log(`[PlaywrightService] Launching Chromium with headless=false (forced visible mode, persistent profile)`);
+      try {
+        const userDataDir = require('os').tmpdir() + '/playwright-visible-profile';
+        const executablePath = await chromium.executablePath?.();
+        console.log('[PlaywrightService] Chromium executablePath:', executablePath);
+        PlaywrightService.browser = await chromium.launchPersistentContext(userDataDir, {
+          headless: false,
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -36,17 +50,26 @@ export class PlaywrightService {
             '--no-first-run',
             '--no-zygote',
             '--disable-gpu',
+            '--window-position=100,100',
+            '--window-size=1280,800',
           ],
+          executablePath: executablePath,
         });
+        return PlaywrightService.browser;
+      } catch (err) {
+        console.error('[PlaywrightService] Failed to launch Chromium:', err);
+        throw err;
       }
+    }
+  }
 
-      const context = browser.contexts().length > 0
-        ? browser.contexts()[0]
-        : await browser.newContext({
-            userAgent:
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            viewport: { width: 1280, height: 720 },
-          });
+  async sendMessageToChatGPT(dto: SendChatgptTmxMessageDto): Promise<string> {
+    const { message, timeout = 30, headless = true } = dto;
+    let context: BrowserContext | null = null;
+    let page: Page | null = null;
+
+    try {
+      context = await PlaywrightService.getBrowser(this.CHROME_CDP_URL);
 
       page = await context.newPage();
       page.setDefaultTimeout(timeout * 1000);
@@ -153,7 +176,7 @@ export class PlaywrightService {
             const count = await elements.count();
             if (count > 0) {
               const responseElement = elements.last();
-              responseText = await responseElement.textContent();
+              responseText = (await responseElement.textContent()) ?? '';
               if (responseText && responseText.trim().length > 0) {
                 break;
               }
@@ -168,7 +191,7 @@ export class PlaywrightService {
         await page.waitForTimeout(2000);
       }
       if (!responseText || responseText.trim().length === 0) {
-        const pageContent = await page.textContent('body');
+        const pageContent = (await page.textContent('body')) ?? '';
         const lines = pageContent
           .split('\n')
           .map((line) => line.trim())
@@ -194,7 +217,7 @@ export class PlaywrightService {
     } finally {
       try {
         if (page) await page.close();
-        if (browser) await browser.close();
+        // Do not close the static browser here!
       } catch (cleanupError) {
         // ignore
       }
