@@ -33,3 +33,9 @@ temp/
 
 # Local config
 *.local
+
+# Browser profiles and caches
+chromium-profile/
+firefox-profile/
+google-profile/
+patchright-profile/

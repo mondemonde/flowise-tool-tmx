@@ -1,14 +1,12 @@
-const { firefox } = require('playwright');
+const { chromium } = require('playwright');
 
 (async () => {
-  const userDataDir = './firefox-profile'; // Persistent profile directory
+  const userDataDir = './chromium-profile'; // Persistent profile directory
 
-  // Launch system Firefox with persistent context
-  const firefoxPath = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-  const context = await firefox.launchPersistentContext(userDataDir, {
+  // Launch Playwright's bundled Chromium with persistent context
+  const context = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     args: ['--start-maximized'],
-    executablePath: firefoxPath,
   });
 
   const page = context.pages().length > 0 ? context.pages()[0] : await context.newPage();

@@ -3,6 +3,6 @@
  * This script will launch firefox-chatgpt-tmx.js and guide you through Google and ChatGPT login.
  */
 
-console.log('Launching Playwright Firefox ChatGPT TMX workflow...');
+console.log('Launching Patchright Chrome ChatGPT TMX workflow...');
 
-require('../firefox-chatgpt-tmx.js');
+require('../_patchright-chatgpt-tmx.js');

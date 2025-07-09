@@ -2,9 +2,11 @@ const puppeteer = require('puppeteer');
 
 (async () => {
   const userDataDir = './google-profile'; // Persistent profile directory
-  // Launch bundled Chromium with persistent profile
+  // Launch system Chrome with persistent profile
+  const chromePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
   const browser = await puppeteer.launch({
     headless: false,
+    executablePath: chromePath,
     userDataDir,
     args: ['--start-maximized'],
     defaultViewport: null,

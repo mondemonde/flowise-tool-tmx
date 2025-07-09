@@ -1,14 +1,14 @@
-const { firefox } = require('playwright');
+const { chromium } = require('patchright');
 
 (async () => {
-  const userDataDir = './firefox-profile'; // Persistent profile directory
+  const userDataDir = './patchright-profile'; // Persistent profile directory
 
-  // Launch system Firefox with persistent context
-  const firefoxPath = "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-  const context = await firefox.launchPersistentContext(userDataDir, {
+  // Launch Patchright with system Chrome in stealth mode
+  const context = await chromium.launchPersistentContext(userDataDir, {
+    channel: "chrome",
     headless: false,
-    args: ['--start-maximized'],
-    executablePath: firefoxPath,
+    viewport: null
+    // Do NOT add custom browser headers or userAgent for best stealth
   });
 
   const page = context.pages().length > 0 ? context.pages()[0] : await context.newPage();
