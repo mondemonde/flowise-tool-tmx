@@ -1,4 +1,10 @@
-import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { McpService } from './mcp.service';
 import { SendChatgptTmxMessageDto } from './dto/send-chatgpt-tmx-message.dto';
 
@@ -12,7 +18,10 @@ export class McpController {
       return await this.mcpService.sendChatgptTmxMessage(dto);
     } catch (error) {
       throw new HttpException(
-        { content: [{ type: 'text', text: `Error: ${error.message}` }], isError: true },
+        {
+          content: [{ type: 'text', text: `Error: ${error.message}` }],
+          isError: true,
+        },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

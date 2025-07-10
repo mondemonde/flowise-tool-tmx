@@ -1,5 +1,5 @@
 {
-  "name": "mcp-server",
+  "name": "mcp-nest-servicebus-relay",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -22,12 +22,8 @@
   "dependencies": {
     "@azure/service-bus": "^7.9.5",
     "@nestjs/common": "^11.0.1",
-    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.2",
-    "playwright": "^1.53.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "uuid": "^11.1.0"

@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { McpModule } from './mcp/mcp.module';
+import { ServiceBusRelayService } from './servicebus-relay.service';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), McpModule],
+  imports: [],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ServiceBusRelayService],
 })
 export class AppModule {}

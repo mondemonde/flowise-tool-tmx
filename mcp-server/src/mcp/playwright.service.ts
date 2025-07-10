@@ -11,8 +11,8 @@ export class PlaywrightService {
       inputs: {
         message: dto.message,
         timeout: dto.timeout ?? 30,
-        headless: dto.headless ?? true
-      }
+        headless: dto.headless ?? true,
+      },
     });
     return result.response;
   }

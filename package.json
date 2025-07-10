@@ -20,9 +20,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@azure/service-bus": "^7.9.5",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.202.0",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.202.0",
     "@opentelemetry/sdk-trace-node": "^2.0.1",
+    "dotenv": "^16.6.1",
     "flowise-components": "^3.0.3",
     "patchright": "^1.52.5",
     "playwright": "^1.40.0",
