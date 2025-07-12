@@ -1,5 +1,5 @@
 const { ServiceBusClient } = require("@azure/service-bus");
-require("dotenv").config();
+require("dotenv").config({ path: "mcp-nest-servicebus-relay/.env" });
 
 async function main() {
   const connectionString = process.env.AZURE_SERVICEBUS_CONNECTION_STRING;
