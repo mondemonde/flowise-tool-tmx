@@ -15,8 +15,12 @@ export class AppController {
   }
 
   @Post('relay')
-  async relayPrompt(@Body('prompt') prompt: string): Promise<{ response: string }> {
-    const response = await this.serviceBusRelayService.relayPrompt(prompt);
-    return { response };
+  async relayPrompt(
+    @Body('prompt') prompt: string,
+    @Body('correlationId') correlationId?: string,
+    @Body('tmxProjectUrl') tmxProjectUrl?: string,
+  ): Promise<{ response: string; correlationId: string }> {
+    const { response, usedCorrelationId } = await this.serviceBusRelayService.relayPrompt(prompt, correlationId, tmxProjectUrl);
+    return { response, correlationId: usedCorrelationId };
   }
 }

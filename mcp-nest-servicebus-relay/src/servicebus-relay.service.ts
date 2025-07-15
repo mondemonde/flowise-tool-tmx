@@ -26,22 +26,22 @@ export class ServiceBusRelayService {
    * @param prompt The prompt/query text to relay.
    * @returns The response text from the service bus.
    */
-  async relayPrompt(prompt: string): Promise<string> {
-    const correlationId = uuidv4();
+  async relayPrompt(prompt: string, correlationId?: string, tmxProjectUrl?: string): Promise<{ response: string; usedCorrelationId: string }> {
+    const usedCorrelationId = correlationId || uuidv4();
 
     // Send the request message
     await this.sender.sendMessages({
-      body: { prompt },
-      correlationId,
+      body: { prompt, tmxProjectUrl },
+      correlationId: usedCorrelationId,
       replyTo: this.responseQueue,
     });
 
-    this.logger.log(`Sent prompt with correlationId: ${correlationId}`);
+    this.logger.log(`Sent prompt with correlationId: ${usedCorrelationId}${tmxProjectUrl ? ` and tmxProjectUrl: ${tmxProjectUrl}` : ''}`);
 
     // Wait for the response with the same correlationId
-    const response = await this.waitForResponse(correlationId);
+    const response = await this.waitForResponse(usedCorrelationId);
 
-    return response;
+    return { response, usedCorrelationId };
   }
 
   /**

@@ -12,6 +12,8 @@ import {
   ProcessErrorArgs,
 } from '@azure/service-bus';
 
+import { McpService } from './mcp.service';
+
 @Injectable()
 export class ServiceBusListenerService
   implements OnModuleInit, OnModuleDestroy
@@ -32,6 +34,8 @@ export class ServiceBusListenerService
   private subscription: ReturnType<ServiceBusReceiver['subscribe']> | null =
     null;
 
+  constructor(private readonly mcpService: McpService) {}
+
   async onModuleInit() {
     this.sbClient = new ServiceBusClient(this.connectionString);
     this.receiver = this.sbClient.createReceiver(this.requestQueue);
@@ -43,13 +47,23 @@ export class ServiceBusListenerService
       processMessage: async (message: ServiceBusReceivedMessage) => {
         try {
           const prompt = message.body?.prompt || message.body;
+          const tmxProjectUrl = message.body?.tmxProjectUrl;
           const correlationId = message.correlationId;
           this.logger.log(
-            `Received prompt: ${prompt} (correlationId: ${correlationId})`,
+            `Received prompt: ${prompt} (correlationId: ${correlationId})${tmxProjectUrl ? `, tmxProjectUrl: ${tmxProjectUrl}` : ''}`,
           );
 
-          // Process the prompt (for now, just echo it back)
-          const responseText = `Echo: ${prompt}`;
+          // Call Playwright via McpService
+          const dto = { message: prompt, headless: false, tmxProjectUrl };
+          const aiResponse = await this.mcpService.sendChatgptTmxMessage(dto as any);
+
+          // Extract the AI response text
+          let responseText = '';
+          if (aiResponse && aiResponse.content && aiResponse.content[0] && aiResponse.content[0].text) {
+            responseText = aiResponse.content[0].text;
+          } else {
+            responseText = 'No response from Playwright/ChatGPT TMX';
+          }
 
           // Send response to response queue
           await this.sender.sendMessages({
