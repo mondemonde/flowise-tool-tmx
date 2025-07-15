@@ -14,17 +14,17 @@ provider "azurerm" {
 
 # Variables
 
-# Resource Group (assume it exists, or create if needed)
-data "azurerm_resource_group" "relay" {
-  name = var.resource_group_name,
+# Resource Group (create if it does not exist)
+resource "azurerm_resource_group" "relay" {
+  name     = var.resource_group_name
   location = var.location
 }
 
 # App Service Plan
 resource "azurerm_app_service_plan" "relay" {
   name                = "${var.app_name}-plan"
-  location            = data.azurerm_resource_group.relay.location
-  resource_group_name = data.azurerm_resource_group.relay.name
+  location            = azurerm_resource_group.relay.location
+  resource_group_name = azurerm_resource_group.relay.name
   kind                = "Linux"
   reserved            = true
 
@@ -37,8 +37,8 @@ resource "azurerm_app_service_plan" "relay" {
 # App Service (Web App)
 resource "azurerm_linux_web_app" "relay" {
   name                = var.app_name
-  location            = data.azurerm_resource_group.relay.location
-  resource_group_name = data.azurerm_resource_group.relay.name
+  location            = azurerm_resource_group.relay.location
+  resource_group_name = azurerm_resource_group.relay.name
   service_plan_id     = azurerm_app_service_plan.relay.id
 
   site_config {
