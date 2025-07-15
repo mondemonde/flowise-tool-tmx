@@ -1,0 +1,10 @@
+# Example values for deploying the relay MCP server
+
+resource_group_name                = "your-resource-group"
+location                           = "East US"
+app_service_plan_sku               = "B1"
+app_name                           = "relay-mcp-server"
+
+azure_servicebus_connection_string = "Endpoint=sb://<your-servicebus-namespace>.servicebus.windows.net/;SharedAccessKeyName=<key-name>;SharedAccessKey=<key>"
+azure_servicebus_request_queue     = "mcpqueue-request"
+azure_servicebus_response_queue    = "mcpqueue-response"
