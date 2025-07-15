@@ -39,3 +39,5 @@ chromium-profile/
 firefox-profile/
 google-profile/
 patchright-profile/
+infra-relayMcpServer/variables.tf
+infra-relayMcpServer/variables.tf
