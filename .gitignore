@@ -21,6 +21,7 @@ Thumbs.db
 *.tfstate.*
 terraform.tfvars
 *.tfvars
+infra-relayMcpServer/variables.tf
 
 # Azure
 .azure/
