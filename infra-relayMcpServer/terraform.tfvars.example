@@ -5,6 +5,18 @@
 ***REMOVED***
 ***REMOVED***
 
-azure_servicebus_connection_string = "Endpoint=sb://<your-servicebus-namespace>.servicebus.windows.net/;SharedAccessKeyName=<key-name>;SharedAccessKey=<key>"
+azure_servicebus_connection_string = "Endpoint=sb://mcpservicebusns21651.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=***REMOVED***"
+***REMOVED***
+***REMOVED***
+***REMOVED***
+
+***REMOVED***
+***REMOVED***
+***REMOVED***
+***REMOVED***
+***REMOVED***
+***REMOVED***
+
+***REMOVED***
 ***REMOVED***
 ***REMOVED***
