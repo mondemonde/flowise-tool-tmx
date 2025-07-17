@@ -22,6 +22,7 @@ Thumbs.db
 terraform.tfvars
 *.tfvars
 infra-relayMcpServer/variables.tf
+infra-relayMcpServer/terraform.tfvars.example
 
 # Azure
 .azure/
@@ -41,3 +42,4 @@ firefox-profile/
 google-profile/
 patchright-profile/
 infra-relayMcpServer/_admin-notes.txt
+relay-mcp-server.zip
