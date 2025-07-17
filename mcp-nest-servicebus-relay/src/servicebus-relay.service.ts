@@ -15,6 +15,11 @@ export class ServiceBusRelayService {
   private sender: ServiceBusSender;
   private receiver: ServiceBusReceiver;
 
+  // Configurable timeout for waiting for response (in ms), default 120000 (120 sec)
+  private readonly responseTimeoutMs = process.env.AZURE_SERVICEBUS_RESPONSE_TIMEOUT_MS
+    ? parseInt(process.env.AZURE_SERVICEBUS_RESPONSE_TIMEOUT_MS, 10)
+    : 120000;
+
   constructor() {
     this.sbClient = new ServiceBusClient(this.connectionString);
     this.sender = this.sbClient.createSender(this.requestQueue);
@@ -64,11 +69,11 @@ export class ServiceBusRelayService {
         },
       });
 
-      // Timeout after 60 seconds
+      // Timeout after configurable period (default 120 seconds)
       setTimeout(async () => {
         await subscription.close();
         reject(new Error('Timeout waiting for response from Service Bus'));
-      }, 60000);
+      }, this.responseTimeoutMs);
     });
   }
 }
