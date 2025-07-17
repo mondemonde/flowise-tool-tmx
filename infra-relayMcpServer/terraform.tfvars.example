@@ -1,22 +1,22 @@
-***REMOVED***
+# Example values for deploying the relay MCP server
 
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
+resource_group_name                = "your-resource-group"
+location                           = "East US"
+app_service_plan_sku               = "B1"
+app_name                           = "relay-mcp-server"
 
-azure_servicebus_connection_string = "Endpoint=sb://mcpservicebusns21651.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=***REMOVED***"
-***REMOVED***
-***REMOVED***
-***REMOVED***
+azure_servicebus_connection_string = "Endpoint=sb://<your-servicebus-namespace>.servicebus.windows.net/;SharedAccessKeyName=<your-key-name>;SharedAccessKey=<your-key>"
+azure_servicebus_request_queue     = "mcpqueue-request"
+azure_servicebus_response_queue    = "mcpqueue-response"
+azure_servicebus_response_timeout_ms = "120000"
 
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
-***REMOVED***
+# Docker deployment variables
+container_image    = "relay:latest"
+acr_login_server   = "flowisetmxacr.azurecr.io"
+acr_username       = "flowisetmxacr"
+acr_password       = "One23.com"
+port               = "8080"
 
-***REMOVED***
-***REMOVED***
-***REMOVED***
+# Azure Container Registry variables
+acr_name           = "flowisetmxacr"
+acr_sku            = "Basic"
