@@ -84,3 +84,21 @@ Restart the App Service after updating these settings.
 
 - [Azure Container Registry Documentation](https://docs.microsoft.com/en-us/azure/container-registry/)
 - [Deploy Docker containers to App Service](https://docs.microsoft.com/en-us/azure/app-service/tutorial-custom-docker-image)
+
+
+# retrieve credential
+az acr credential show --name ***REMOVED***
+
+{
+  "passwords": [
+    {
+      "name": "password",
+      "value": "***REMOVED***"
+    },
+    {
+      "name": "password2",
+      "value": "***REMOVED***"
+    }
+  ],
+  "username": "***REMOVED***"
+}

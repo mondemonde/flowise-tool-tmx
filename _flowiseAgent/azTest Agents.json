@@ -498,7 +498,12 @@
         "inputs": {
           "agentModel": "azureChatOpenAI",
           "agentMessages": "",
-          "agentTools": "",
+          "agentTools": [
+  {
+    "agentSelectedTool": "relay-mcp-server",
+    "agentSelectedToolRequiresHumanInput": false
+  }
+],
           "agentKnowledgeDocumentStores": "",
           "agentKnowledgeVSEmbeddings": "",
           "agentEnableMemory": true,
