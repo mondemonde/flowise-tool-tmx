@@ -88,17 +88,5 @@ Restart the App Service after updating these settings.
 
 # retrieve credential
 az acr credential show --name ***REMOVED***
+see infra-relayMcpServer\_admin-notes.txt
 
-{
-  "passwords": [
-    {
-      "name": "password",
-      "value": "***REMOVED***"
-    },
-    {
-      "name": "password2",
-      "value": "***REMOVED***"
-    }
-  ],
-  "username": "***REMOVED***"
-}
