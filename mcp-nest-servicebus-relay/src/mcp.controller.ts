@@ -1,6 +1,18 @@
-import { Controller, Get, Post, Body, Sse, MessageEvent } from '@nestjs/common';
-import { Observable, of } from 'rxjs';
+import { Controller, Get, Post, Body, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { ServiceBusRelayService } from './servicebus-relay.service';
+import * as fs from 'fs';
+import * as path from 'path';
+
+function getVersion(): string {
+  try {
+    const pkgPath = path.resolve(__dirname, '../package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    return pkg.version || 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
 
 @Controller('mcp')
 export class McpController {
@@ -12,6 +24,7 @@ export class McpController {
       {
         name: 'relay_prompt',
         description: 'Relay a prompt/query to Azure Service Bus and wait for a response.',
+        version: getVersion(),
         inputSchema: {
           type: 'object',
           properties: {
@@ -36,8 +49,24 @@ export class McpController {
     return { response, correlationId: usedCorrelationId };
   }
 
-  @Sse('sse')
-  sse(): Observable<MessageEvent> {
-    return of({ data: 'SSE not implemented yet' });
+  /**
+   * Dummy SSE endpoint for MCP compatibility.
+   * Streams a single dummy event and keeps the connection open for a short time.
+   */
+  @Get('stream')
+  dummySse(@Res() res: Response) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    // Send a dummy event
+    res.write(`data: {"event":"dummy","message":"SSE endpoint active"}\n\n`);
+
+    // Optionally keep the connection open for a while, then close
+    setTimeout(() => {
+      res.write(`data: {"event":"close","message":"Closing dummy SSE"}\n\n`);
+      res.end();
+    }, 5000);
   }
 }
