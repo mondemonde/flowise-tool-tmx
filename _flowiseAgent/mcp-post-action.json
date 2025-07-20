@@ -1,0 +1,26 @@
+[
+  {
+    "property": "tmxProjectUrl",
+    "type": "string",
+    "description": "The URL of the relay MCP server endpoint.",
+    "required": true
+  },
+  {
+    "property": "message",
+    "type": "string",
+    "description": "The message to send to the external API.",
+    "required": true
+  },
+  {
+    "property": "timeout",
+    "type": "number",
+    "description": "Optional timeout in milliseconds for the request.",
+    "required": false
+  },
+  {
+    "property": "headless",
+    "type": "boolean",
+    "description": "Optional flag to indicate if the operation should run in headless mode.",
+    "required": false
+  }
+]

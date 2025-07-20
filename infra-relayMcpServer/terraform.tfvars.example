@@ -12,11 +12,11 @@ azure_servicebus_response_timeout_ms = "120000"
 
 # Docker deployment variables
 container_image    = "relay:latest"
-acr_login_server   = "***REMOVED***.azurecr.io"
-acr_username       = "***REMOVED***"
+acr_login_server   = "flowisetmxacr.azurecr.io"
+acr_username       = "flowisetmxacr"
 acr_password       = "One23.com"
 port               = "8080"
 
 # Azure Container Registry variables
-acr_name           = "***REMOVED***"
+acr_name           = "flowisetmxacr"
 acr_sku            = "Basic"

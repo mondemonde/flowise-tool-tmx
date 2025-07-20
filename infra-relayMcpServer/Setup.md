@@ -19,7 +19,7 @@ From the root of your relay project (where the Dockerfile is located):
 
 ```sh
 docker build -t relay:latest .
-docker tag relay:latest ***REMOVED***.azurecr.io/relay:latest
+docker tag relay:latest flowisetmxacr.azurecr.io/relay:latest
 ```
 
 ---
@@ -31,10 +31,10 @@ You need the ACR admin username and password to push images and configure App Se
 **Show the ACR admin credentials:**
 
 ```sh
-az acr credential show --name ***REMOVED***
+az acr credential show --name flowisetmxacr
 ```
 
-- The username is usually the ACR name (e.g., `***REMOVED***`).
+- The username is usually the ACR name (e.g., `flowisetmxacr`).
 - The password is in the `passwords[0].value` field of the output.
 
 ---
@@ -42,7 +42,7 @@ az acr credential show --name ***REMOVED***
 ## 4. Login to Azure Container Registry
 
 ```sh
-docker login ***REMOVED***.azurecr.io
+docker login flowisetmxacr.azurecr.io
 ```
 - Enter the username and password from the previous step when prompted.
 
@@ -51,7 +51,7 @@ docker login ***REMOVED***.azurecr.io
 ## 5. Push the Docker Image to ACR
 
 ```sh
-docker push ***REMOVED***.azurecr.io/relay:latest
+docker push flowisetmxacr.azurecr.io/relay:latest
 ```
 
 ---
@@ -60,10 +60,10 @@ docker push ***REMOVED***.azurecr.io/relay:latest
 
 In the Azure Portal or via Terraform, set the following App Settings for your Web App:
 
-- `DOCKER_REGISTRY_SERVER_URL` = `https://***REMOVED***.azurecr.io`
+- `DOCKER_REGISTRY_SERVER_URL` = `https://flowisetmxacr.azurecr.io`
 - `DOCKER_REGISTRY_SERVER_USERNAME` = `<your-acr-username>`
 - `DOCKER_REGISTRY_SERVER_PASSWORD` = `<your-acr-password>`
-- `DOCKER_CUSTOM_IMAGE_NAME` = `***REMOVED***.azurecr.io/relay:latest`
+- `DOCKER_CUSTOM_IMAGE_NAME` = `flowisetmxacr.azurecr.io/relay:latest`
 
 Restart the App Service after updating these settings.
 
@@ -74,7 +74,7 @@ Restart the App Service after updating these settings.
 - If you see `ImagePullFailure`, double-check the image name, tag, and credentials.
 - Ensure the image exists in ACR:  
   ```sh
-  az acr repository show-tags --name ***REMOVED*** --repository relay
+  az acr repository show-tags --name flowisetmxacr --repository relay
   ```
 - Make sure the App Service has access to ACR (correct credentials, no firewall blocking).
 
@@ -87,6 +87,6 @@ Restart the App Service after updating these settings.
 
 
 # retrieve credential
-az acr credential show --name ***REMOVED***
+az acr credential show --name flowisetmxacr
 see infra-relayMcpServer\_admin-notes.txt
 

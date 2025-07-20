@@ -1,6 +1,6 @@
 {
   "name": "mcp-nest-servicebus-relay",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "author": "",
   "private": true,
@@ -21,13 +21,16 @@
   },
   "dependencies": {
     "@azure/service-bus": "^7.9.5",
+    "@modelcontextprotocol/sdk": "^1.16.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@rekog/mcp-nest": "^1.6.3",
+    "dotenv": "^16.4.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "uuid": "^11.1.0",
-    "dotenv": "^16.4.5"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
